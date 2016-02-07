@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-    <title>Widget / Zipwhip Ice Luge</title>
+    <title>Widget / Zipwhip Receive Text</title>
 
     <!-- ChiliPeppr is based on bootstrap CSS. -->
     <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -14,17 +14,82 @@
     <script type='text/javascript' src="//i2dcui.appspot.com/js/require.js"></script>
 
     <style type='text/css'>
-/* CSS for ChiliPeppr Widget */
-
-#com-zipwhip-widget-recvtext {
-   
+#com-chilipeppr-widget-recvtext .recvtext-runnng {
+    color: #3c763d;
+    background-color: #dff0d8;
+    /* background-color: #3c763d; */
+}
+#com-chilipeppr-widget-recvtext .panel-body {
+    /*padding:0;*/
+}
+#com-chilipeppr-widget-recvtext .panel-footer {
+    cursor:pointer;
+}
+.recvtext-bg {
+    width: 100%;
+    height: 100%;
+    /* background-color: red; */
+    /* opacity: 0.9; */
+    background-image: url('http://ftp.zipwhip.com/public/dashboard/ctiapartyforchilipeppr.png');
+    background-size: contain;
+    background-repeat: repeat;
+}
+.recvtext-identity {
+    /* margin:-16px .-16px 0 -16px; */
+    /*background-color:#ddd;*/
+    /*zoom:2;*/
+}
+.recvtext-calltoaction {
+    /*background-color:#ddd;*/
+    padding:0 6px 6px 6px;
+    /*zoom:2;*/
+}
+.recvtext-identity .zw-dashboardcard {
+    padding-left:4px;
+    pointer-events:none;
+}
+.recvtext-identity .zw-contactcard-name {
+    /*width:200%;*/
+    /*line-height:20px;*/
+}
+.recvtext-identity .zw-contactcard-phone {
+    /*width:200%;*/
 }
 
-#com-zipwhip-widget-recvtext .nav-tabs>li>a {
-    padding: 2px 6px;
+.zw-contactcard {
+    pointer-events:none;
+}
+.zw-contactcard-menu {
+    /*display:none;*/
+}
+.recvtext-vendingfor {
+    /* padding:0 10px; */
+    max-height: 250px;
+    overflow: auto;
+}
+.recvtext-vendingfor-item {
+    padding:0 10px 6px 10px;
+    background-color: #D0F9FF;
+    border-radius: 6px;
+    margin: 10px;
+}
+.recvtext-vendingfor-item.recvtext-busy {
+      color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+}
+.recvtext-huge {
+    zoom:4;
+    position:absolute;
+    left:30px;
+    right:30px;
+    top:30px;
+    bottom:30px;
 }
 
-
+div,p,input,button {
+    /*font: 15px "Segoe UI", calibri, arial, helvetica, sans-serif;*/
+}
     </style>
 
     <script type='text/javascript'>
@@ -66,8 +131,10 @@ requirejs.config({
 });
 
 // Test this element. This code is auto-removed by the chilipeppr.load()
-cprequire_test(["inline:com-zipwhip-widget-recvtext"], function (zipwhip) {
+cprequire_test(["inline:com-chilipeppr-widget-recvtext"], function (zipwhip) {
     console.log("test running of " + zipwhip.id);
+    
+    $('body').css("padding", "20px");
     
     // this makes it so we don't poll, so that we don't handle the response while the main workspace does
     zipwhip.noPollingWhileTesting = true;
@@ -78,30 +145,31 @@ cprequire_test(["inline:com-zipwhip-widget-recvtext"], function (zipwhip) {
         chilipeppr.publish("/com-chilipeppr-widget-gcode/done", "param1", "p2");
     }
     setTimeout(testPubSub, 10000);
+    
         
 } /*end_test*/ );
 
-cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function () {
+cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function () {
     return {
-        id: "com-zipwhip-widget-recvtext",
-        url: "http://fiddle.jshell.net/zipwhip/75b9eha6/show/light/",
-        fiddleurl: "http://jsfiddle.net/zipwhip/75b9eha6/",
-        name: "Widget / Zipwhip Ice Luge",
-        desc: "Let people send a text inbound to trigger the ice luge.",
+        id: "com-chilipeppr-widget-recvtext",
+        name: "Widget / Zipwhip Receive Text",
+        desc: "Let people send inbound texts to trigger actions inside ChiliPeppr.",
+        url: "http://raw.githubusercontent.com/chilipeppr/widget-recvtext/master/auto-generated-widget.html",       // The final URL of the working widget as a single HTML file with CSS and Javascript inlined. You can let runme.js auto fill this if you are using Cloud9.
+        fiddleurl: "http://ide.c9.io/chilipeppr/widget-recvtext", // The edit URL. This can be auto-filled by runme.js in Cloud9 if you'd like, or just define it on your own to help people know where they can edit/fork your widget
+        githuburl: "http://github.com/chilipeppr/widget-recvtext", // The backing github repo
+        testurl: "http://widget-recvtext-chilipeppr.c9users.io/widget.html",   // The standalone working widget so can view it working by itself
         foreignSubscribe: {
             "/com-chilipeppr-widget-gcode/done" : "When we see this signal, we know we can queue up the next trigger.",
             "/com-chilipeppr-widget-gcode/onpause" : "When we see this signal, we know the operator is having a problem and is pausing.",
             "/com-chilipeppr-widget-gcode/onplay" : "When we see this signal, we know that the gcode is in play mode so we can reject incoming texts.",
             "/com-chilipeppr-widget-gcode/onstop" : "When we see this signal, we know the operator is having a problem and is stopping."
         },
-        // http://landline.zipwhip.com/session/update?_dc=1436834301125&sessions=b80b572e-1f29-42ba-9a4e-a0a5b3bb6682%3A259476803
-        // http://landline.zipwhip.com/session/update?_dc=1436834557815&sessions=7c5a05a9-924f-431a-ac5e-e9913f0b243d%3A259476803
-        // Original Summer Party (same as photo booth)
-        // (844) 564-6528
-        //sessionkey: "7c5a05a9-924f-431a-ac5e-e9913f0b243d:259476803",
-        // CTIA Party
-        // (844) 947-4444
+        /**
+         * The sessionkey is the main value needed for all Zipwhip cloud calls. This
+         * value is set from localStorage after you login.
+         */
         sessionkey: "535752b5-0766-47d7-99ee-c59a2975cdce:301551902",
+        //sessionkey: null,
         vending: false,
         isTimerMode: true,
         timeOut: 25000,
@@ -112,19 +180,47 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
             if (this.noPollingWhileTesting == false) 
                 this.setupIntervalToShortPoll();
             
+            this.setupLogin();
+            
             this.setupBtns();
             this.loadIdentityCard();
-            this.injectDiv();
+            //this.injectDiv();
             
             this.forkSetup();
             this.subscribeSetup();
             
             console.log(this.name + " done loading.");
         },
+        setupLogin: function() {
+        
+            // see if we are logged in
+            var skey = localStorage.getItem(this.id + "-sessionkey");
+            if (skey && skey.length > 10) {
+                // we have a sessionkey
+                this.sessionkey = skey;
+                $('#' + this.id + " .post-login-region").removeClass("hidden");
+            } else {
+                // show login box
+                //com-chilipeppr-widget-zipwhiploginform-instance
+                chilipeppr.load(
+                    "#com-chilipeppr-widget-zipwhiploginform-instance",
+                    "https://fiddle.jshell.net/zipwhip/b3qgw2bp/show/light",
+                    function() {
+                        // we get here once loaded
+                        $('#com-chilipeppr-widget-zipwhiploginform-instance').removeClass("hidden");
+                        
+                        cprequire(["inline:com-zipwhip-loginform"], function(zwlogin) {
+                            // get here after finding the instance object
+                            zwlogin.init();
+                        })
+                    }
+                );
+            }
+        },
         injectDiv: function() {
             setTimeout(function() {
                 console.log("injecting background for ice luge");
-                var el = $('<div class="zwiceluge-bg">BG</div>');
+                var el = $('<div class="recvtext-bg">BG</div>');
                 $('#com-chilipeppr-widget-3dviewer-renderArea').prepend(el);
                 //$('#com-chilipeppr-serialport-log').addClass("hidden");
                 //$('#com-chilipeppr-gcode-list').addClass("hidden");
@@ -145,14 +241,15 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
             setInterval(this.checkForInboundMsgs.bind(this), 3 * 1000);
         },
         setupBtns: function() {
-            $('.zwiceluge-run').click(this.onStartVending.bind(this));
-            $('#com-zipwhip-widget-recvtext .panel-footer').click(this.checkForInboundMsgs.bind(this));
+            $('.recvtext-run').click(this.onStartVending.bind(this));
+            $('#com-chilipeppr-widget-recvtext .panel-footer').click(this.checkForInboundMsgs.bind(this));
             
         },
         loadContactCard: function() {
+            var that = this;
             // load contact card
             chilipeppr.load(
-                "#zwiceluge-identity-instantiation",
+                "#recvtext-identity-instantiation",
                 "http://fiddle.jshell.net/zipwhip/z85knmtj/show/light/",
                 function() {
                     cprequire(["inline:com-zipwhip-contactcard"], function (ccard) {
@@ -163,9 +260,9 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
                         var sessionkey = that.sessionkey;
                         if (sessionkey && sessionkey.length > 0) {
                             ccard.createViaSessionkey(sessionkey, function(el, obj) {
-                                //$('.zwiceluge-identity').replaceWith(el);
+                                //$('.recvtext-identity').replaceWith(el);
                                 el.find('.zw-contactcard-menu').addClass("hidden");
-                                $('.zwiceluge-identity').append(el);
+                                $('.recvtext-identity').append(el);
                                 console.log("just appended real ID card with name/phone. obj:", obj);
                             });
                         }
@@ -182,7 +279,7 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
 
             // load an identity card using dashboard card
             chilipeppr.load(
-                "#zwiceluge-identity-instantiation",
+                "#recvtext-identity-instantiation",
                 "http://fiddle.jshell.net/zipwhip/xet57Lbr/show/light/",
                 function() {
                     cprequire(["inline:com-zipwhip-dashboardcard"], function (dashboardcard) {
@@ -202,7 +299,7 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
                                 function(d, sessionkey, phone, response) {
                                     console.log("got a dashboard card for a sessionkey. d:", d);
                                     d.find('.zw-contactcard-menu').remove();
-                                    $(".zwiceluge-identity").append(d);
+                                    $(".recvtext-identity").append(d);
                                 }
                             ); 
                         });
@@ -290,14 +387,14 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
             var phone = msg.sourceAddress;
 
             // show err msg
-            var el = $('<div class="zwiceluge-vendingfor-item zwiceluge-busy">' + phone + '</div>');
+            var el = $('<div class="recvtext-vendingfor-item recvtext-busy">' + phone + '</div>');
             var ccardEl = this.elemContactCard.create({phone:this.formatPhone(phone)});
             el.empty().append(ccardEl);
-            el.append('<div class="zwiceluge-vendingfor-msg">' + msg.body + ' (Sent a busy msg back)</div>');
+            el.append('<div class="recvtext-vendingfor-msg">' + msg.body + ' (Sent a busy msg back)</div>');
             var now = new Date();
-            el.append('<div class="zwiceluge-vendingfor-now">' + now.toLocaleString() + '<span class="zwiceluge-vendingfor-done"></span></div>');
+            el.append('<div class="recvtext-vendingfor-now">' + now.toLocaleString() + '<span class="recvtext-vendingfor-done"></span></div>');
             
-            $('.zwiceluge-vendingfor').prepend(el);
+            $('.recvtext-vendingfor').prepend(el);
         },
         onStartVending: function(phone, msg) {
             
@@ -320,29 +417,29 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
             if (msg && 'body' in msg) body = msg.body;
             
             // show who we're vending for
-            this.vendingForEl = $('<div class="zwiceluge-vendingfor-item zwiceluge-runnng">' + phone + '</div>');
+            this.vendingForEl = $('<div class="recvtext-vendingfor-item recvtext-runnng">' + phone + '</div>');
             var ccardEl = this.elemContactCard.create({phone:this.formatPhone(phone)});
             this.vendingForEl.empty().append(ccardEl);
-            this.vendingForEl.append('<div class="zwiceluge-vendingfor-msg">' + body + '</div>');
+            this.vendingForEl.append('<div class="recvtext-vendingfor-msg">' + body + '</div>');
             var now = new Date();
-            this.vendingForEl.append('<div class="zwiceluge-vendingfor-now">' + now.toLocaleString() + ' <span class="zwiceluge-vendingfor-done"></span></div>');
+            this.vendingForEl.append('<div class="recvtext-vendingfor-now">' + now.toLocaleString() + ' <span class="recvtext-vendingfor-done"></span></div>');
             
-            $('.zwiceluge-vendingfor').prepend(this.vendingForEl);
+            $('.recvtext-vendingfor').prepend(this.vendingForEl);
             
             // make a clone and make it huge and absolute position
             var that = this;
             setTimeout(function() {
                 var hugeEl = that.vendingForEl.clone();
-                hugeEl.addClass("zwiceluge-huge");
+                hugeEl.addClass("recvtext-huge");
                 that.hugeEl = hugeEl;
                 $('body').append(hugeEl);
             }, 2000);
             
             // show green state
-            $('#com-zipwhip-widget-recvtext .panel-heading').addClass("zwiceluge-runnng");
+            $('#com-chilipeppr-widget-recvtext .panel-heading').addClass("recvtext-runnng");
             
             // disable run button
-            $('.zwiceluge-run').prop('disabled', true);
+            $('.recvtext-run').prop('disabled', true);
             
             // for now do fake callback in about 7 seconds
             if (this.isTimerMode) setTimeout(this.onEndVending.bind(this), this.timeOut);
@@ -364,14 +461,14 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
             
             if (this.vendingForEl) {
                 // mark vendingFor as complete
-                this.vendingForEl.removeClass("zwiceluge-runnng").find('.zwiceluge-vendingfor-done').text('Done');
+                this.vendingForEl.removeClass("recvtext-runnng").find('.recvtext-vendingfor-done').text('Done');
             }
             
             // put hdr back to normal
-            $('#com-zipwhip-widget-recvtext .panel-heading').removeClass("zwiceluge-runnng");
+            $('#com-chilipeppr-widget-recvtext .panel-heading').removeClass("recvtext-runnng");
             
             // enable run button
-            $('.zwiceluge-run').prop('disabled', false);
+            $('.recvtext-run').prop('disabled', false);
             
         },
         shortPoll: function(callback) {
@@ -400,7 +497,7 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
                 }
                 
                 var now = new Date();
-                $('#com-zipwhip-widget-recvtext .panel-footer').text("Last query " + now.toLocaleString()).removeClass("alert-danger alert");
+                $('#com-chilipeppr-widget-recvtext .panel-footer').text("Last query " + now.toLocaleString()).removeClass("alert-danger alert");
                 
                 if (callback) callback(obj);
                 
@@ -409,7 +506,7 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
                 console.log("got err from format phone. response:", response);
                 
                 var now = new Date();
-                $('#com-zipwhip-widget-recvtext .panel-footer').text("Last query " + now.toLocaleString() + " Error").addClass("alert-danger alert");
+                $('#com-chilipeppr-widget-recvtext .panel-footer').text("Last query " + now.toLocaleString() + " Error").addClass("alert-danger alert");
 
                 var errmsg;
                 if ('responseJSON' in response)
@@ -481,20 +578,20 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
         onDone: function(msg) {
             console.log("got onDone signal. send text.");
             // see if they have a phone and that they want an alert
-            $('#com-zipwhip-widget-recvtext .panel-title-status').text("onDone");
+            $('#com-chilipeppr-widget-recvtext .panel-title-status').text("onDone");
             this.onEndVending();
         },
         onPlay: function(param1, param2) {
             console.log("zipwhip texting. got onPlay signal. param1:", param1, "param2:", param2);
-            $('#com-zipwhip-widget-recvtext .panel-title-status').text("onPlay");
+            $('#com-chilipeppr-widget-recvtext .panel-title-status').text("onPlay");
         },
         onPause: function(param1, param2) {
             console.log("zipwhip texting. got onPause signal. param1:", param1, "param2:", param2);
-            $('#com-zipwhip-widget-recvtext .panel-title-status').text("onPause");
+            $('#com-chilipeppr-widget-recvtext .panel-title-status').text("onPause");
         },
         onStop: function(param1, param2) {
             console.log("zipwhip texting. got onStop signal. param1:", param1, "param2:", param2);
-            $('#com-zipwhip-widget-recvtext .panel-title-status').text("onStop");
+            $('#com-chilipeppr-widget-recvtext .panel-title-status').text("onStop");
         },
         forkSetup: function () {
             var topCssSelector = '#' + this.id; //com-chilipeppr-widget-tinyg';
@@ -529,20 +626,22 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
 
 <body>
 
-    <div id="com-zipwhip-widget-recvtext" class="panel panel-default">
+    <div id="com-chilipeppr-widget-recvtext" class="panel panel-default">
         <div class="panel-heading">
             <div class="btn-toolbar pull-right " role="toolbar">
 
                 <div class="btn-group"></div>
 
                 <div class="btn-group" xstyle="margin-right:6px;">
-                    <button type="button" id="" class="btn btn-xs btn-default zwiceluge-run " data-container="body" data-toggle="popover" data-placement="auto" data-content="Run the ice luge." data-trigger="hover" data-delay="800"> Run <span class="glyphicon glyphicon-play"></span>
+                    <button type="button" id="" class="btn btn-xs btn-default recvtext-run " 
+                    data-container="body" data-toggle="popover" data-placement="auto" data-content="Run the ice luge." data-trigger="hover" data-delay="800"> Run <span class="glyphicon glyphicon-play"></span>
                     </button>
                 </div>
 
                 <div class="btn-group">
                     <div class="dropdown">
-                        <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span>
+                        <button type="button" class="btn btn-xs btn-default dropdown-toggle" 
+                        data-toggle="dropdown"><span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" role="menu"></ul>
                     </div>
@@ -551,22 +650,27 @@ cpdefine("inline:com-zipwhip-widget-recvtext", ["chilipeppr_ready"], function ()
 
             </div>
 
-            <span class="panel-title " data-toggle="popover">Zipwhip Ice Luge</span>
+            <span class="panel-title " data-toggle="popover">Zipwhip Receive Text</span>
             <span class="panel-title-status"></span>
 
         </div>
         <div class="panel-body">
-            <!-- <div class="container-fluid"> -->
-            <div id="zwiceluge-identity-instantiation" class="zwiceluge-identity">
-                Incoming Texts to (844) 564-6528
+            
+            <div id="com-chilipeppr-widget-zipwhiploginform-instance" class="login hidden">
+                Login form here.
             </div>
-            <div class="zwiceluge-calltoaction">Text the word "Zipwhip" to get your shot.</div>
-
-            <div class="zwiceluge-vendingfor">
-
+            
+            <div class="post-login-region hidden">
+                <div id="recvtext-identity-instantiation" class="recvtext-identity">
+                    Incoming Texts to (844) 564-6528
+                </div>
+                <div class="recvtext-calltoaction">Text the word "go" to start your Gcode job.</div>
+    
+                <div class="recvtext-vendingfor">
+    
+                </div>
             </div>
 
-            <!-- </div> -->
         </div>
         <div class="panel-footer xhidden">
             Last query (Never)
