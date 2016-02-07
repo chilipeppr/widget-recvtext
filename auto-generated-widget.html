@@ -60,7 +60,7 @@
     pointer-events:none;
 }
 .zw-contactcard-menu {
-    /*display:none;*/
+    display:none;
 }
 .recvtext-vendingfor {
     /* padding:0 10px; */
@@ -68,23 +68,27 @@
     overflow: auto;
 }
 .recvtext-vendingfor-item {
-    padding:0 10px 6px 10px;
-    background-color: #D0F9FF;
+    padding:2px 10px 6px 10px;
+    /*background-color: #D0F9FF;*/
+    background-color: #eee;
     border-radius: 6px;
     margin: 10px;
 }
 .recvtext-vendingfor-item.recvtext-busy {
-      color: #8a6d3b;
+    color: #8a6d3b;
     background-color: #fcf8e3;
+    /*background-color: #eee;*/
     border-color: #faebcc;
 }
 .recvtext-huge {
-    zoom:4;
+    zoom:1;
     position:absolute;
-    left:30px;
-    right:30px;
-    top:30px;
-    bottom:30px;
+    left:50%;
+    top:10%;
+    /*left:30px;*/
+    /*right:30px;*/
+    /*top:30px;*/
+    /*bottom:30px;*/
 }
 
 div,p,input,button {
@@ -137,7 +141,7 @@ cprequire_test(["inline:com-chilipeppr-widget-recvtext"], function (zipwhip) {
     $('body').css("padding", "20px");
     
     // this makes it so we don't poll, so that we don't handle the response while the main workspace does
-    zipwhip.noPollingWhileTesting = true;
+    //zipwhip.noPollingWhileTesting = true;
     
     zipwhip.init();
     
@@ -168,22 +172,23 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
          * The sessionkey is the main value needed for all Zipwhip cloud calls. This
          * value is set from localStorage after you login.
          */
-        sessionkey: "535752b5-0766-47d7-99ee-c59a2975cdce:301551902",
+        sessionkey: null,
+        //sessionkey: "535752b5-0766-47d7-99ee-c59a2975cdce:301551902",
+        sessionPhone: null,
         //sessionkey: null,
         vending: false,
         isTimerMode: true,
-        timeOut: 25000,
+        timeOut: 5000,
         noPollingWhileTesting: false,
         init: function () {
 
-            // this makes it so we don't poll, so that we don't handle the response while the main workspace does
-            if (this.noPollingWhileTesting == false) 
-                this.setupIntervalToShortPoll();
-            
+            // this method will see if we have a stored login
+            // if we do, we move forward to show UI elements and start polling
+            // if no login, we show login form
             this.setupLogin();
             
             this.setupBtns();
-            this.loadIdentityCard();
+            
             //this.injectDiv();
             
             this.forkSetup();
@@ -193,12 +198,14 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
         },
         setupLogin: function() {
         
+            var that = this;
+            
             // see if we are logged in
             var skey = localStorage.getItem(this.id + "-sessionkey");
             if (skey && skey.length > 10) {
                 // we have a sessionkey
                 this.sessionkey = skey;
-                $('#' + this.id + " .post-login-region").removeClass("hidden");
+                this.doPostLogin();
             } else {
                 // show login box
                 //com-chilipeppr-widget-zipwhiploginform-instance
@@ -209,13 +216,46 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                         // we get here once loaded
                         $('#com-chilipeppr-widget-zipwhiploginform-instance').removeClass("hidden");
                         
+                        // make the login btn look like a bootstrap button
+                        $('.zw-loginform-submit-btn').addClass("btn btn-primary");
+                        
                         cprequire(["inline:com-zipwhip-loginform"], function(zwlogin) {
                             // get here after finding the instance object
                             zwlogin.init();
+                            zwlogin.addCallbackAfterLogin(that.afterLogin.bind(that));
                         })
                     }
                 );
             }
+        },
+        afterLogin: function(info) {
+            console.log("got callback in ChiliPeppr Receive Text widget after login. info:", info);
+            if (info.success == true) {
+                // store it
+                localStorage.setItem(this.id + "-sessionkey", info.response);
+                this.doPostLogin();
+            }
+        },
+        /**
+         * This method should be called after verifying there is a legitimate sessionkey
+         * and we are good to go to start running short polling and show UI items that
+         * we want after having a good login.
+         */
+        doPostLogin: function() {
+            $('#' + this.id + " .post-login-region").removeClass("hidden");
+            $('#com-chilipeppr-widget-zipwhiploginform-instance').addClass("hidden");
+            
+            var that = this;    
+            this.loadIdentityCard(function(obj) {
+                
+                console.log("done loading info for this logged in acct. info:", obj);
+                that.sessionPhone = obj.phone;
+                
+                // this makes it so we don't poll, so that we don't handle the response while the main workspace does
+                if (that.noPollingWhileTesting == false) 
+                    that.setupIntervalToShortPoll();
+                
+            });
         },
         injectDiv: function() {
             setTimeout(function() {
@@ -238,7 +278,9 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
         },
         setupIntervalToShortPoll: function() {
             // Setup an interval to query on
-            setInterval(this.checkForInboundMsgs.bind(this), 3 * 1000);
+            var interval = 10; // seconds
+            console.log("setting up interval to query zipwhip for inbound texts. seconds:", interval);
+            setInterval(this.checkForInboundMsgs.bind(this), interval * 1000);
         },
         setupBtns: function() {
             $('.recvtext-run').click(this.onStartVending.bind(this));
@@ -273,7 +315,7 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             );
 
         },
-        loadIdentityCard: function() {
+        loadIdentityCard: function(callback) {
             
             var that = this;
 
@@ -300,6 +342,13 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                                     console.log("got a dashboard card for a sessionkey. d:", d);
                                     d.find('.zw-contactcard-menu').remove();
                                     $(".recvtext-identity").append(d);
+                                    //that.sessionPhone = phone;
+                                    if (callback) {
+                                        callback( { 
+                                            sessionkey: sessionkey, 
+                                            phone: phone
+                                        });
+                                    }
                                 }
                             ); 
                         });
@@ -337,7 +386,7 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                         if (msg.type.match(/MO/i) && msg.isRead != true) {
                             
                             // check that it's our vend keyword
-                            if (msg.body.match(/zipwhip|zip whip|zippwhip|zipwip/i)) {
+                            if (msg.body.match(/^\s*go/i)) {
                                 
                                 // see if we are vending
                                 if (that.isVending()) {
@@ -346,8 +395,9 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
 
                                     // so we don't get into a loop
                                     //if (msg.srcAddr != "8445646528") {
-                                    if (msg.srcAddr != "8449474444") {
-                                        that.sendText(msg.srcAddr, "Sorry. The Zipwhip Ice Luge is busy handling somebody else's shot right now. Please wait a tiny bit and text back in.");
+                                    if (msg.srcAddr != that.sessionPhone) {
+                                        that.sendText(msg.srcAddr, 
+                                        "Sorry. The Zipwhip Receive Text widget is busy handling somebody else's request right now. Please wait a bit and text back in.");
                                         that.onBusyMsg(msg);
                                     }
 
@@ -356,9 +406,12 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                                     // we are good to vend
 
                                     // so we don't get into a loop
-                                    if (msg.srcAddr != "8449474444") {
+                                    if (msg.srcAddr != that.sessionPhone) {
                                         // send vending response back
-                                        that.sendText(msg.srcAddr, "The Zipwhip Ice Luge is activating right now for you! Get your cup ready.");
+                                        that.sendText(msg.srcAddr, 
+                                            "The Zipwhip Receive Text action is triggering " + 
+                                            "for you right now." +
+                                            "");
                                         that.onStartVending(msg.srcAddr, msg);
                                     }
                                 }
@@ -481,6 +534,11 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             
             $.ajax({
                 url: url,
+                // The name of the callback parameter, as specified by the YQL service
+                jsonp: "callback",
+                // Tell jQuery we're expecting JSONP
+                dataType: "jsonp",
+                jsonpCallback: "callbackForJsonPForSessionUpdate",
                 context: this,
             }).done(function(response) {
                 //console.log("got back info from session update. response:", response);

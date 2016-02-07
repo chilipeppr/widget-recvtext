@@ -44,7 +44,7 @@
     pointer-events:none;
 }
 .zw-contactcard-menu {
-    /*display:none;*/
+    display:none;
 }
 .recvtext-vendingfor {
     /* padding:0 10px; */
@@ -52,23 +52,27 @@
     overflow: auto;
 }
 .recvtext-vendingfor-item {
-    padding:0 10px 6px 10px;
-    background-color: #D0F9FF;
+    padding:2px 10px 6px 10px;
+    /*background-color: #D0F9FF;*/
+    background-color: #eee;
     border-radius: 6px;
     margin: 10px;
 }
 .recvtext-vendingfor-item.recvtext-busy {
-      color: #8a6d3b;
+    color: #8a6d3b;
     background-color: #fcf8e3;
+    /*background-color: #eee;*/
     border-color: #faebcc;
 }
 .recvtext-huge {
-    zoom:4;
+    zoom:1;
     position:absolute;
-    left:30px;
-    right:30px;
-    top:30px;
-    bottom:30px;
+    left:50%;
+    top:10%;
+    /*left:30px;*/
+    /*right:30px;*/
+    /*top:30px;*/
+    /*bottom:30px;*/
 }
 
 div,p,input,button {
