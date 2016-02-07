@@ -50,6 +50,11 @@ cprequire_test(["inline:com-chilipeppr-widget-recvtext"], function (zipwhip) {
     }
     setTimeout(testPubSub, 10000);
     
+    setTimeout(zipwhip.activateWidget.bind(zipwhip), 1000);
+    setTimeout(zipwhip.activateWidget.bind(zipwhip), 5000);
+    setTimeout(zipwhip.unactivateWidget.bind(zipwhip), 7000);
+    setTimeout(zipwhip.activateWidget.bind(zipwhip), 9000);
+
         
 } /*end_test*/ );
 
@@ -95,6 +100,16 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             this.subscribeSetup();
             
             console.log(this.name + " done loading.");
+        },
+        activateWidget: function() {
+            // turn on short polling if we are authenticated
+            console.log("got activateWidget for " + this.name);
+            this.turnOnShortPoll();
+        },
+        unactivateWidget: function() {
+            // turn off short polling
+            console.log("got unactivateWidget for " + this.name);
+            this.turnOffShortPoll();
         },
         setupLogin: function() {
         
@@ -153,7 +168,8 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                 
                 // this makes it so we don't poll, so that we don't handle the response while the main workspace does
                 if (that.noPollingWhileTesting == false) 
-                    that.setupIntervalToShortPoll();
+                    //that.setupIntervalToShortPoll();
+                    that.turnOnShortPoll();
                 
             });
         },
@@ -176,16 +192,54 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onplay", this, this.onPlay);
             chilipeppr.subscribe("/com-chilipeppr-widget-gcode/onstop", this, this.onStop);
         },
+        /**
+         * Holds the pointer to the interval setTimeout so we can turn it off
+         */
+        intervalPtr: null,
+        toggleShortPoll: function() {
+            if (this.intervalPtr) {
+                this.turnOffShortPoll();
+            } else {
+                this.turnOnShortPoll();
+            }
+        },
+        turnOffShortPoll: function() {
+            
+            if (this.intervalPtr) {
+                console.log("turning off short polling");
+                clearInterval(this.intervalPtr);
+                this.intervalPtr = null;
+                $('#' + this.id + " .panel-footer").text("Short polling off.");
+                $('#' + this.id + " .recvtext-toggleshortpoll-txt").text("Off");
+            } else {
+                console.log("asked to turn off short polling but it wasn't on");
+            }
+        },
+        turnOnShortPoll: function() {
+            if (this.intervalPtr) {
+                console.log("being asked to turn on short poll, but it is already on");
+            } else {
+                console.log("being asked to turn on short poll, it was not on, so turning on");
+                if (this.sessionkey && this.sessionkey.length > 10) {
+                    this.setupIntervalToShortPoll();
+                } else {
+                    console.log("there is no sessionkey so not actually turning on short polling");
+                }
+            }
+        },
         setupIntervalToShortPoll: function() {
             // Setup an interval to query on
             var interval = 10; // seconds
             console.log("setting up interval to query zipwhip for inbound texts. seconds:", interval);
-            setInterval(this.checkForInboundMsgs.bind(this), interval * 1000);
+            this.intervalPtr = setInterval(this.checkForInboundMsgs.bind(this), interval * 1000);
+            $('#' + this.id + " .panel-footer").text("Started short polling. Every " + interval + " secs.");
+            $('#' + this.id + " .recvtext-toggleshortpoll-txt").text("On");
+
         },
         setupBtns: function() {
             $('.recvtext-run').click(this.onStartVending.bind(this));
             $('#com-chilipeppr-widget-recvtext .panel-footer').click(this.checkForInboundMsgs.bind(this));
-            
+            $('#' + this.id + " .recvtext-toggleshortpoll").click(this.toggleShortPoll.bind(this));
         },
         loadContactCard: function() {
             var that = this;
