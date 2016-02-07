@@ -8,6 +8,7 @@
 }
 #com-chilipeppr-widget-recvtext .panel-footer {
     cursor:pointer;
+    font-size:10px;
 }
 .recvtext-bg {
     width: 100%;
