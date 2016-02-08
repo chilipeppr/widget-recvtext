@@ -462,7 +462,7 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                 var hugeEl = that.vendingForEl.clone();
                 hugeEl.addClass("recvtext-huge");
                 that.hugeEl = hugeEl;
-                $('body').append(hugeEl);
+                //$('body').append(hugeEl);
             }, 2000);
             
             // show green state
