@@ -147,7 +147,8 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             console.log("got callback in ChiliPeppr Receive Text widget after login. info:", info);
             if (info.success == true) {
                 // store it
-                localStorage.setItem(this.id + "-sessionkey", info.response);
+                this.sessionkey = info.response;
+                localStorage.setItem(this.id + "-sessionkey", this.sessionkey);
                 this.doPostLogin();
             }
         },
@@ -159,6 +160,9 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
         doPostLogin: function() {
             $('#' + this.id + " .post-login-region").removeClass("hidden");
             $('#com-chilipeppr-widget-zipwhiploginform-instance').addClass("hidden");
+            
+            // show logout button
+            $('#' + this.id + " .recvtext-logout-btn").removeClass("hidden");
             
             var that = this;    
             this.loadIdentityCard(function(obj) {
@@ -172,6 +176,17 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                     that.turnOnShortPoll();
                 
             });
+        },
+        logout: function() {
+            // wipe sessionkey
+            this.turnOffShortPoll();
+            this.sessionkey = null;
+            this.sessionPhone = null;
+            localStorage.removeItem(this.id + "-sessionkey");
+            $('#' + this.id + " .recvtext-logout-btn").addClass("hidden");
+            $('#' + this.id + " .post-login-region").addClass("hidden");
+            $('#com-chilipeppr-widget-zipwhiploginform-instance').removeClass("hidden");
+            this.setupLogin();
         },
         injectDiv: function() {
             setTimeout(function() {
@@ -240,6 +255,8 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             $('.recvtext-run').click(this.onStartVending.bind(this));
             $('#com-chilipeppr-widget-recvtext .panel-footer').click(this.checkForInboundMsgs.bind(this));
             $('#' + this.id + " .recvtext-toggleshortpoll").click(this.toggleShortPoll.bind(this));
+            $('#' + this.id + " .recvtext-logout-btn").click(this.logout.bind(this));
+            
         },
         loadContactCard: function() {
             var that = this;
@@ -289,6 +306,12 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                         
                             that.elemConversationCard = dashboardcard.conversationCard;
                             that.elemContactCard = dashboardcard.conversationCard.contactCard;
+
+                            // remove any previous dashcard
+                            $(".recvtext-identity .zw-dashboardcard")
+                                .not(".zw-dashboardcard-template")
+                                .remove();
+                            //$(".recvtext-identity .zw-dashboardcard").addClass("hidden");
 
                             dashboardcard.create(
                                 that.sessionkey,

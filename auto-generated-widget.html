@@ -248,7 +248,8 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             console.log("got callback in ChiliPeppr Receive Text widget after login. info:", info);
             if (info.success == true) {
                 // store it
-                localStorage.setItem(this.id + "-sessionkey", info.response);
+                this.sessionkey = info.response;
+                localStorage.setItem(this.id + "-sessionkey", this.sessionkey);
                 this.doPostLogin();
             }
         },
@@ -260,6 +261,9 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
         doPostLogin: function() {
             $('#' + this.id + " .post-login-region").removeClass("hidden");
             $('#com-chilipeppr-widget-zipwhiploginform-instance').addClass("hidden");
+            
+            // show logout button
+            $('#' + this.id + " .recvtext-logout-btn").removeClass("hidden");
             
             var that = this;    
             this.loadIdentityCard(function(obj) {
@@ -273,6 +277,17 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                     that.turnOnShortPoll();
                 
             });
+        },
+        logout: function() {
+            // wipe sessionkey
+            this.turnOffShortPoll();
+            this.sessionkey = null;
+            this.sessionPhone = null;
+            localStorage.removeItem(this.id + "-sessionkey");
+            $('#' + this.id + " .recvtext-logout-btn").addClass("hidden");
+            $('#' + this.id + " .post-login-region").addClass("hidden");
+            $('#com-chilipeppr-widget-zipwhiploginform-instance').removeClass("hidden");
+            this.setupLogin();
         },
         injectDiv: function() {
             setTimeout(function() {
@@ -341,6 +356,8 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             $('.recvtext-run').click(this.onStartVending.bind(this));
             $('#com-chilipeppr-widget-recvtext .panel-footer').click(this.checkForInboundMsgs.bind(this));
             $('#' + this.id + " .recvtext-toggleshortpoll").click(this.toggleShortPoll.bind(this));
+            $('#' + this.id + " .recvtext-logout-btn").click(this.logout.bind(this));
+            
         },
         loadContactCard: function() {
             var that = this;
@@ -390,6 +407,12 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                         
                             that.elemConversationCard = dashboardcard.conversationCard;
                             that.elemContactCard = dashboardcard.conversationCard.contactCard;
+
+                            // remove any previous dashcard
+                            $(".recvtext-identity .zw-dashboardcard")
+                                .not(".zw-dashboardcard-template")
+                                .remove();
+                            //$(".recvtext-identity .zw-dashboardcard").addClass("hidden");
 
                             dashboardcard.create(
                                 that.sessionkey,
@@ -746,10 +769,14 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                 <div class="btn-group"></div>
 
                 <div class="btn-group" xstyle="margin-right:6px;">
-                    <button type="button" id="" class="btn btn-xs btn-default recvtext-run " 
+                    <button type="button" class="btn btn-xs btn-default recvtext-run " 
                     data-container="body" data-toggle="popover" data-placement="auto" data-content="Run the ice luge." data-trigger="hover" data-delay="800"> Run <span class="glyphicon glyphicon-play"></span>
                     </button>
-                    <button type="button" id="" class="btn btn-xs btn-default recvtext-toggleshortpoll " 
+                    <button type="button" class="btn btn-xs btn-default recvtext-logout-btn hidden" 
+                    data-container="body" data-toggle="popover" data-placement="auto" 
+                    data-content="Logout" data-trigger="hover" data-delay="800"> Logout <span class="glyphicon glyphicon-log-out hidden"></span>
+                    </button>
+                    <button type="button" class="btn btn-xs btn-default recvtext-toggleshortpoll " 
                     data-container="body" data-toggle="popover" data-placement="auto" 
                     data-content="Toggle Short Polling" data-trigger="hover" data-delay="800"> <span class="recvtext-toggleshortpoll-txt">Off</span> <span class="glyphicon glyphicon-off"></span>
                     </button>
