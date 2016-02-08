@@ -256,7 +256,7 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             $('#com-chilipeppr-widget-recvtext .panel-footer').click(this.checkForInboundMsgs.bind(this));
             $('#' + this.id + " .recvtext-toggleshortpoll").click(this.toggleShortPoll.bind(this));
             $('#' + this.id + " .recvtext-logout-btn").click(this.logout.bind(this));
-            
+            $('#' + this.id + " .btn").popover();
         },
         loadContactCard: function() {
             var that = this;
