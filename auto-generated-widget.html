@@ -190,8 +190,14 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
         isTimerMode: true,
         timeOut: 5000,
         noPollingWhileTesting: false,
+        isInitted: false,
         init: function () {
 
+            if (this.isInitted) {
+                console.warn("You are initting the Zipwhip Recv Text widget again. why? returning...");
+                return;
+            }
+            
             // this method will see if we have a stored login
             // if we do, we move forward to show UI elements and start polling
             // if no login, we show login form
@@ -203,6 +209,8 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             
             this.forkSetup();
             this.subscribeSetup();
+            
+            this.isInitted = true;
             
             console.log(this.name + " done loading.");
         },
