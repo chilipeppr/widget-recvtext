@@ -751,6 +751,7 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                 this.options.showBody = true;
                 this.saveOptionsLocalStorage();
             }
+            $(window).trigger("resize");
         },
         /**
          * Hide the body of the panel.
@@ -769,6 +770,7 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                 this.options.showBody = false;
                 this.saveOptionsLocalStorage();
             }
+            $(window).trigger("resize");
         },
         forkSetup: function () {
             var topCssSelector = '#' + this.id; //com-chilipeppr-widget-tinyg';
