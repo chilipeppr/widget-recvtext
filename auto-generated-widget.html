@@ -207,10 +207,11 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             
             //this.injectDiv();
             
-            this.btnSetup();
-            this.forkSetup();
             this.subscribeSetup();
-            
+            this.btnSetup();
+            this.setupUiFromLocalStorage();
+            this.forkSetup();
+
             this.isInitted = true;
             
             console.log(this.name + " done loading.");
