@@ -67,6 +67,11 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
         fiddleurl: "(auto fill by runme.js)", // The edit URL. This can be auto-filled by runme.js in Cloud9 if you'd like, or just define it on your own to help people know where they can edit/fork your widget
         githuburl: "(auto fill by runme.js)", // The backing github repo
         testurl: "(auto fill by runme.js)",   // The standalone working widget so can view it working by itself
+        publish: {
+            '/onrecv' : 'This signal is sent when an incoming text comes in. You can subscribe to it via chilipeppr.subscribe("/' +
+            this.id + '/onrecv", this, this.yourMethod) and you will get a signal that contains the payload of the message including ' +
+            'the body of the text and the sender\'s phone number.',
+        },
         foreignSubscribe: {
             "/com-chilipeppr-widget-gcode/done" : "When we see this signal, we know we can queue up the next trigger.",
             "/com-chilipeppr-widget-gcode/onpause" : "When we see this signal, we know the operator is having a problem and is pausing.",
