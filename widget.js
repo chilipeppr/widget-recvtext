@@ -388,7 +388,7 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                         if (msg.type.match(/MO/i) && msg.isRead != true) {
                             
                             // publish that we got a text
-                            this.onRecvText(msg);
+                            that.onRecvText(msg);
                             
                             /*
                             // check that it's our vend keyword
@@ -441,9 +441,33 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             });
         },
         onRecvText: function(msg) {
-            console.lpg("got onRecvText. msg:", msg);
+            console.log("got onRecvText. msg:", msg);
             
             chilipeppr.publish("/" + this.id + "/recv", msg);
+            
+            this.addInboundMsgBubble(msg);
+        },
+        addInboundMsgBubble: function(msg) {
+            // check for run without phone
+            var phone = msg.srcAddr;
+            if (phone == null || phone.length == 0 || typeof phone == "object") {
+                console.log("being run manually");
+                phone = "0000000000";
+            }
+            
+            var body = "(No body of msg)";
+            if (msg && 'body' in msg) body = msg.body;
+            
+            // show who we're vending for
+            this.vendingForEl = $('<div class="recvtext-vendingfor-item recvtext-runnng">' + phone + '</div>');
+            var ccardEl = this.elemContactCard.create({phone:this.formatPhone(phone)});
+            this.vendingForEl.empty().append(ccardEl);
+            this.vendingForEl.append('<div class="recvtext-vendingfor-msg">' + body + '</div>');
+            var now = new Date();
+            this.vendingForEl.append('<div class="recvtext-vendingfor-now">' + now.toLocaleString() + ' <span class="recvtext-vendingfor-done"></span></div>');
+            
+            $('.recvtext-vendingfor').prepend(this.vendingForEl);
+            $(window).trigger('resize');
         },
         onBusyMsg: function(msg) {
             
