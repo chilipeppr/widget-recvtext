@@ -68,9 +68,15 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
         githuburl: "(auto fill by runme.js)", // The backing github repo
         testurl: "(auto fill by runme.js)",   // The standalone working widget so can view it working by itself
         publish: {
-            '/onrecv' : 'This signal is sent when an incoming text comes in. You can subscribe to it via chilipeppr.subscribe("/' +
-            id + '/onrecv", this, this.yourMethod) and you will get a signal that contains the payload of the message including ' +
+            '/recv' : 'This signal is sent when an incoming text comes in. You can subscribe to it ' + 
+            'and you will get a signal that contains the payload of the message including ' +
             'the body of the text and the sender\'s phone number.',
+        },
+        subscribe: {
+            '/send' : 'You can publish this signal and this widget will send a text message. The payload should look like ' +
+            '{body: "my text msg body", to: "313-555-1212"} and the text will be sent to the to phone number from the account ' + 
+            'you are logged into. Make sure to ' +
+            'send less than 160 characters or multiple concatenated texts will be sent.'
         },
         foreignSubscribe: {
             "/com-chilipeppr-widget-gcode/done" : "When we see this signal, we know we can queue up the next trigger.",
@@ -106,6 +112,7 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             this.setupBtns();
             
             //this.injectDiv();
+            this.setupPubSub();
             
             this.subscribeSetup();
             this.btnSetup();
@@ -125,6 +132,9 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             // turn off short polling
             console.log("got unactivateWidget for " + this.name);
             this.turnOffShortPoll();
+        },
+        setupPubSub: function() {
+            chilipeppr.subscribe("/" + this.id + "/send", this, this.sendTextFromPubSubSignal);    
         },
         setupLogin: function() {
         
@@ -377,6 +387,10 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                         // see if we have an inbound msg
                         if (msg.type.match(/MO/i) && msg.isRead != true) {
                             
+                            // publish that we got a text
+                            this.onRecvText(msg);
+                            
+                            /*
                             // check that it's our vend keyword
                             if (msg.body.match(/^\s*go/i)) {
                                 
@@ -411,6 +425,7 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                             } else {
                                 console.log("a keyword was texted in that we didn't understand, so just ignoring.");
                             }
+                            */
                             
                         } else if (msg.type.match(/MO/i) && msg.isRead == true) {
                             console.log("got copy of marking MO msg as read, so ignore");
@@ -424,6 +439,11 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
                     //console.log("did short poll, but got nothing back");    
                 }
             });
+        },
+        onRecvText: function(msg) {
+            console.lpg("got onRecvText. msg:", msg);
+            
+            chilipeppr.publish("/" + this.id + "/recv", msg);
         },
         onBusyMsg: function(msg) {
             
@@ -574,6 +594,12 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             var fmt = "(" + RegExp.$1 + ") " + RegExp.$2 + "-" + RegExp.$3;
             
             return fmt;
+        },
+        /**
+         * Pass in the payload {body: "your body", to: "313-414-1234"} to send your text.
+         */
+        sendTextFromPubSubSignal: function(payload) {
+            this.sendText(payload.to, payload.body);
         },
         sendText: function(destAddr, body) {
             // this method uses the Zipwhip api documented at zipwhip.com/api
