@@ -64,7 +64,7 @@ To better understand how ChiliPeppr's subscribe() method works see amplify.js's 
           </tr>
       </thead>
       <tbody>
-      <tr valign="top"><td>/com-chilipeppr-widget-recvtext/onrecv</td><td>This signal is sent when an incoming text comes in. You can subscribe to it via chilipeppr.subscribe("/undefined/onrecv", this, this.yourMethod) and you will get a signal that contains the payload of the message including the body of the text and the sender's phone number.</td></tr>    
+      <tr valign="top"><td>/com-chilipeppr-widget-recvtext/onrecv</td><td>This signal is sent when an incoming text comes in. You can subscribe to it via chilipeppr.subscribe("/inline:com-chilipeppr-widget-recvtext/onrecv", this, this.yourMethod) and you will get a signal that contains the payload of the message including the body of the text and the sender's phone number.</td></tr>    
       </tbody>
   </table>
 

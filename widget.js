@@ -69,7 +69,7 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
         testurl: "(auto fill by runme.js)",   // The standalone working widget so can view it working by itself
         publish: {
             '/onrecv' : 'This signal is sent when an incoming text comes in. You can subscribe to it via chilipeppr.subscribe("/' +
-            this.id + '/onrecv", this, this.yourMethod) and you will get a signal that contains the payload of the message including ' +
+            id + '/onrecv", this, this.yourMethod) and you will get a signal that contains the payload of the message including ' +
             'the body of the text and the sender\'s phone number.',
         },
         foreignSubscribe: {
