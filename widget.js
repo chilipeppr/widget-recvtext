@@ -76,7 +76,8 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
             '/send' : 'You can publish this signal and this widget will send a text message. The payload should look like ' +
             '{body: "my text msg body", to: "313-555-1212"} and the text will be sent to the to phone number from the account ' + 
             'you are logged into. Make sure to ' +
-            'send less than 160 characters or multiple concatenated texts will be sent.'
+            'send less than 160 characters or multiple concatenated texts will be sent.',
+            '/getSessionKey' : "You can ask for the sessionkey back and phone number of the logged in account. This lets you make your own direct calls to Zipwhip. You must pass in {callback:mymethod} and that method will get called back immediately with the sessionkey and phone number of the logged in account."
         },
         foreignSubscribe: {
             "/com-chilipeppr-widget-gcode/done" : "When we see this signal, we know we can queue up the next trigger.",
@@ -135,6 +136,12 @@ cpdefine("inline:com-chilipeppr-widget-recvtext", ["chilipeppr_ready"], function
         },
         setupPubSub: function() {
             chilipeppr.subscribe("/" + this.id + "/send", this, this.sendTextFromPubSubSignal);    
+            chilipeppr.subscribe("/" + this.id + "/getSessionKey", this, this.publishSessionKey);    
+        },
+        publishSessionKey: function(payload) {
+            if (payload && 'callback' in payload) {
+                payload.callback({sessionkey: this.sessionkey, phone:this.sessionPhone});
+            }
         },
         setupLogin: function() {
         
